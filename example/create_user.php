@@ -18,7 +18,7 @@ if(isset($_REQUEST['name']) && isset($_REQUEST['mail']) && isset($_REQUEST['pass
             ':name' => $_REQUEST['name'],
             ':email' => $_REQUEST['mail'],
             ':password' => md5($_REQUEST['password']),
-            ':api_key' => md5($_REQUEST['email'] . 'api' . $_REQUEST['name'])
+            ':api_key' => md5($_REQUEST['mail']. $_REQUEST['name'])
         ));
     }
     catch (PDOException $e) {
@@ -27,4 +27,5 @@ if(isset($_REQUEST['name']) && isset($_REQUEST['mail']) && isset($_REQUEST['pass
     if ($boolResult) {
         echo 'Successfully Registered!';
     }
+//    print_r(array($_REQUEST['email'], $_REQUEST['name']));
 }

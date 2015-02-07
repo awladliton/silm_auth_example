@@ -9,7 +9,8 @@ global $objHandler;
 $objHandler = new DatabaseHandler();
 $app = new \Slim\Slim();
 
-$app->post('/users', "verifyKey", 'user_list');
+$app->post('/connect', "generateToken");
+$app->get('/users', "verifyKey", 'user_list');
 $app->run();
 
 function user_list() {
@@ -20,12 +21,27 @@ function user_list() {
 function verifyKey() {
     global $objHandler;
     $app = \Slim\Slim::getInstance();
-    $uid = $app->request->params('name');
-    $email = $app->request->params('email');
+    $strToken = $app->request->params('token');
+//    var_dump($objHandler->verifyToken($strToken));
     //check api key
-    if ($objHandler->authenticate($uid, $email) === false) {
+    if (time() > $objHandler->verifyToken($strToken)) {
         echo json_encode(array('status' => 'unauthorized', 'message' => 'invalid api key'));
         $app->status(401);
         $app->stop();
     }
+}
+
+function generateToken(){
+    global $objHandler;
+    $app = \Slim\Slim::getInstance();
+    $uid = $app->request->params('uid');
+    $email = $app->request->params('email');
+
+    //check api key
+    if (! $userId = $objHandler->authenticate($uid, $email)) {
+        echo json_encode(array('status' => 'unauthorized', 'message' => 'invalid api key'));
+        $app->status(401);
+        $app->stop();
+    }
+    echo json_encode(array('status' => 200, 'token' => $objHandler->generate_token($userId)));
 }
